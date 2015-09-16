@@ -14,7 +14,7 @@ case "$1" in
 				encoding=
 			elif [ "$POSTGRES_PORT_5432_TCP" ]; then
 				adapter='postgresql'
-				host='postgres'
+				host="${POSTGRES_HOST:-postgres}"
 				port="${POSTGRES_PORT_5432_TCP_PORT:-5432}"
 				username="${POSTGRES_ENV_POSTGRES_USER:-postgres}"
 				password="${POSTGRES_ENV_POSTGRES_PASSWORD}"
