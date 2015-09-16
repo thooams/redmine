@@ -6,7 +6,7 @@ case "$1" in
 		if [ ! -f './config/database.yml' ]; then
 			if [ "$MYSQL_PORT_3306_TCP" ]; then
 				adapter='mysql2'
-				host='mysql'
+        host="${MYSQL_HOST:-mysql}"
 				port="${MYSQL_PORT_3306_TCP_PORT:-3306}"
 				username="${MYSQL_ENV_MYSQL_USER:-root}"
 				password="${MYSQL_ENV_MYSQL_PASSWORD:-$MYSQL_ENV_MYSQL_ROOT_PASSWORD}"
@@ -25,17 +25,17 @@ case "$1" in
 				echo >&2 '  Did you forget to --link some_mysql_container:mysql or some-postgres:postgres?'
 				echo >&2
 				echo >&2 '*** Using sqlite3 as fallback. ***'
-				
+
 				adapter='sqlite3'
 				host='localhost'
 				username='redmine'
 				database='sqlite/redmine.db'
 				encoding=utf8
-				
+
 				mkdir -p "$(dirname "$database")"
 				chown -R redmine:redmine "$(dirname "$database")"
 			fi
-			
+
 			cat > './config/database.yml' <<-YML
 				$RAILS_ENV:
 				  adapter: $adapter
@@ -47,10 +47,10 @@ case "$1" in
 				  port: $port
 			YML
 		fi
-		
+
 		# ensure the right database adapter is active in the Gemfile.lock
 		bundle install --without development test
-		
+
 		if [ ! -s config/secrets.yml ]; then
 			if [ "$REDMINE_SECRET_KEY_BASE" ]; then
 				cat > 'config/secrets.yml' <<-YML
@@ -64,14 +64,14 @@ case "$1" in
 		if [ "$1" != 'rake' -a -z "$REDMINE_NO_DB_MIGRATE" ]; then
 			gosu redmine rake db:migrate
 		fi
-		
+
 		chown -R redmine:redmine files log public/plugin_assets
-		
+
 		if [ "$1" = 'passenger' ]; then
 			# Don't fear the reaper.
 			set -- tini -- "$@"
 		fi
-		
+
 		set -- gosu redmine "$@"
 		;;
 esac
