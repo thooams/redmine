@@ -6,7 +6,7 @@ case "$1" in
 		if [ ! -f './config/database.yml' ]; then
 			if [ "$MYSQL_PORT_3306_TCP" ]; then
 				adapter='mysql2'
-        host="${MYSQL_HOST:-mysql}"
+                                host="${MYSQL_HOST:-mysql}"
 				port="${MYSQL_PORT_3306_TCP_PORT:-3306}"
 				username="${MYSQL_ENV_MYSQL_USER:-root}"
 				password="${MYSQL_ENV_MYSQL_PASSWORD:-$MYSQL_ENV_MYSQL_ROOT_PASSWORD}"
@@ -60,6 +60,20 @@ case "$1" in
 			elif [ ! -f /usr/src/redmine/config/initializers/secret_token.rb ]; then
 				rake generate_secret_token
 			fi
+		fi
+		
+		if [ ! -s config/configuration.yml ]; then
+			cat > 'config/configuration.yml' <<-YML
+			       email_delivery:
+			         delivery_method: $EMAIL_METHOD
+			         smtp_settings:
+			           address: "$EMAIL_ADDRESS"
+			           port: $EMAIL_PORT
+			           authentication: $EMAIL_AUTHENTICATION
+			           domain: "$EMAIL_DOMAIN"
+			           user_name: "$EMAIL_USER_NAME'
+			           password: "$EMAIL_PASSWORD"
+			YML
 		fi
 		if [ "$1" != 'rake' -a -z "$REDMINE_NO_DB_MIGRATE" ]; then
 			gosu redmine rake db:migrate
