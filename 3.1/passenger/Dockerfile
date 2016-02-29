@@ -1,4 +1,4 @@
-FROM redmine:3.0
+FROM redmine:3.1
 
 ENV PASSENGER_VERSION 5.0.25
 RUN buildDeps=' \

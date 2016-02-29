@@ -21,13 +21,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		libmysqlclient18 \
 		libpq5 \
 		libsqlite3-0 \
+		\
+		bzr \
+		git \
+		mercurial \
+		openssh-client \
+		subversion \
 	&& rm -rf /var/lib/apt/lists/*
 
 ENV RAILS_ENV production
 WORKDIR /usr/src/redmine
 
-ENV REDMINE_VERSION 3.0.4
-ENV REDMINE_DOWNLOAD_MD5 572be68e311468b835ec8ee9c5f0bb72
+ENV REDMINE_VERSION 3.0.7
+ENV REDMINE_DOWNLOAD_MD5 d37fbcb2f0300821cb14c80dfc87ca87
 
 RUN curl -fSL "http://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" -o redmine.tar.gz \
 	&& echo "$REDMINE_DOWNLOAD_MD5 redmine.tar.gz" | md5sum -c - \
