@@ -6,7 +6,7 @@ case "$1" in
 		if [ ! -f './config/database.yml' ]; then
 			if [ "$MYSQL_PORT_3306_TCP" ]; then
 				adapter='mysql2'
-                host="${MYSQL_HOST:-mysql}"
+        host="${MYSQL_HOST:-mysql}"
 				port="${MYSQL_PORT_3306_TCP_PORT:-3306}"
 				username="${MYSQL_ENV_MYSQL_USER:-root}"
 				password="${MYSQL_ENV_MYSQL_PASSWORD:-$MYSQL_ENV_MYSQL_ROOT_PASSWORD}"
@@ -65,7 +65,7 @@ case "$1" in
 
 		# ensure the right database adapter is active in the Gemfile.lock
 		bundle install --without development test
-		
+
 		if [ ! -s config/secrets.yml ]; then
 			if [ "$REDMINE_SECRET_KEY_BASE" ]; then
 				cat > 'config/secrets.yml' <<-YML
@@ -80,17 +80,17 @@ case "$1" in
 		if [ "$1" != 'rake' -a -z "$REDMINE_NO_DB_MIGRATE" ]; then
 			gosu redmine rake db:migrate
 		fi
-		
+
 		chown -R redmine:redmine files log public/plugin_assets
-		
+
 		# remove PID file to enable restarting the container
 		rm -f /usr/src/redmine/tmp/pids/server.pid
-		
+
 		if [ "$1" = 'passenger' ]; then
 			# Don't fear the reaper.
 			set -- tini -- "$@"
 		fi
-		
+
 		set -- gosu redmine "$@"
 		;;
 esac
