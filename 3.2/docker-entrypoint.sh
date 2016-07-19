@@ -6,7 +6,7 @@ case "$1" in
 		if [ ! -f './config/database.yml' ]; then
 			if [ "$MYSQL_PORT_3306_TCP" ]; then
 				adapter='mysql2'
-        host="${MYSQL_HOST:-mysql}"
+				host='mysql'
 				port="${MYSQL_PORT_3306_TCP_PORT:-3306}"
 				username="${MYSQL_ENV_MYSQL_USER:-root}"
 				password="${MYSQL_ENV_MYSQL_PASSWORD:-$MYSQL_ENV_MYSQL_ROOT_PASSWORD}"
@@ -14,38 +14,48 @@ case "$1" in
 				encoding=
 			elif [ "$POSTGRES_PORT_5432_TCP" ]; then
 				adapter='postgresql'
-        host="${POSTGRES_HOST:-postgres}"
+				host='postgres'
 				port="${POSTGRES_PORT_5432_TCP_PORT:-5432}"
 				username="${POSTGRES_ENV_POSTGRES_USER:-postgres}"
 				password="${POSTGRES_ENV_POSTGRES_PASSWORD}"
 				database="${POSTGRES_ENV_POSTGRES_DB:-$username}"
 				encoding=utf8
 			else
-				echo >&2 'warning: missing MYSQL_PORT_3306_TCP or POSTGRES_PORT_5432_TCP environment variables'
-				echo >&2 '  Did you forget to --link some_mysql_container:mysql or some-postgres:postgres?'
+				echo >&2
+				echo >&2 'warning: missing REDMINE_DB_MYSQL or REDMINE_DB_POSTGRES environment variables'
 				echo >&2
 				echo >&2 '*** Using sqlite3 as fallback. ***'
-
+				echo >&2
+				
 				adapter='sqlite3'
 				host='localhost'
-				username='redmine'
-				database='sqlite/redmine.db'
-				encoding=utf8
-
-				mkdir -p "$(dirname "$database")"
-				chown -R redmine:redmine "$(dirname "$database")"
+				: "${REDMINE_DB_PORT:=}"
+				: "${REDMINE_DB_USERNAME:=redmine}"
+				: "${REDMINE_DB_PASSWORD:=}"
+				: "${REDMINE_DB_DATABASE:=sqlite/redmine.db}"
+				: "${REDMINE_DB_ENCODING:=utf8}"
+				
+				mkdir -p "$(dirname "$REDMINE_DB_DATABASE")"
+				chown -R redmine:redmine "$(dirname "$REDMINE_DB_DATABASE")"
 			fi
-
-			cat > './config/database.yml' <<-YML
-				$RAILS_ENV:
-				  adapter: $adapter
-				  database: $database
-				  host: $host
-				  username: $username
-				  password: "$password"
-				  encoding: $encoding
-				  port: $port
-			YML
+			
+			REDMINE_DB_ADAPTER="$adapter"
+			REDMINE_DB_HOST="$host"
+			echo "$RAILS_ENV:" > config/database.yml
+			for var in \
+				adapter \
+				host \
+				
+				username \
+				password \
+				database \
+				encoding \
+			; do
+				env="REDMINE_DB_${var^^}"
+				val="${!env}"
+				[ -n "$val" ] || continue
+				echo "  $var: \"$val\"" >> config/database.yml
+			done
 		fi
 
     if [ ! -s './config/configuration.yml' ]; then
@@ -76,7 +86,6 @@ case "$1" in
 				rake generate_secret_token
 			fi
 		fi
-
 		if [ "$1" != 'rake' -a -z "$REDMINE_NO_DB_MIGRATE" ]; then
 			gosu redmine rake db:migrate
 		fi
