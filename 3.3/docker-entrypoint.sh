@@ -71,11 +71,11 @@ case "$1" in
 				  delivery_method: $EMAIL_METHOD
 				  smtp_settings:
 				    address: $EMAIL_ADDRESS
-				      port: $EMAIL_PORT
-				      authentication: $EMAIL_AUTHENTICATION
-				      domain: $EMAIL_DOMAIN
-				      user_name: $EMAIL_USER_NAME
-				      password: $EMAIL_PASSWORD
+				    port: $EMAIL_PORT
+				    authentication: $EMAIL_AUTHENTICATION
+				    domain: $EMAIL_DOMAIN
+				    user_name: $EMAIL_USER_NAME
+				    password: $EMAIL_PASSWORD
 			YML
 		fi
 
