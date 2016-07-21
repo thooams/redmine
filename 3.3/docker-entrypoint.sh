@@ -64,20 +64,20 @@ case "$1" in
 			done
 		fi
 
-    if [ ! -s './config/configuration.yml' ]; then
-      cat > './config/configuration.yml' <<-YML
-        $RAILS_ENV:
-          email_delivery:
-            delivery_method: $EMAIL_METHOD
-            smtp_settings:
-              address: $EMAIL_ADDRESS
-              port: $EMAIL_PORT
-              authentication: $EMAIL_AUTHENTICATION
-              domain: $EMAIL_DOMAIN
-              user_name: $EMAIL_USER_NAME
-              password: $EMAIL_PASSWORD
-      YML
-    fi
+		if [ ! -s config/configuration.yml ]; then
+			cat > './config/configuration.yml' <<-YML
+				$RAILS_ENV:
+					email_delivery:
+					delivery_method: $EMAIL_METHOD
+					smtp_settings:
+						address: $EMAIL_ADDRESS
+						port: $EMAIL_PORT
+						authentication: $EMAIL_AUTHENTICATION
+						domain: $EMAIL_DOMAIN
+						user_name: $EMAIL_USER_NAME
+						password: $EMAIL_PASSWORD
+			YML
+		fi
 
 		# ensure the right database adapter is active in the Gemfile.lock
 		bundle install --without development test
@@ -92,6 +92,7 @@ case "$1" in
 				rake generate_secret_token
 			fi
 		fi
+
 		if [ "$1" != 'rake' -a -z "$REDMINE_NO_DB_MIGRATE" ]; then
 			gosu redmine rake db:migrate
 		fi
