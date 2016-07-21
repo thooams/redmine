@@ -67,15 +67,15 @@ case "$1" in
 		if [ ! -s config/configuration.yml ]; then
 			cat > './config/configuration.yml' <<-YML
 				$RAILS_ENV:
-					email_delivery:
-					delivery_method: $EMAIL_METHOD
-					smtp_settings:
-						address: $EMAIL_ADDRESS
-						port: $EMAIL_PORT
-						authentication: $EMAIL_AUTHENTICATION
-						domain: $EMAIL_DOMAIN
-						user_name: $EMAIL_USER_NAME
-						password: $EMAIL_PASSWORD
+				  email_delivery:
+				  delivery_method: $EMAIL_METHOD
+				  smtp_settings:
+				    address: $EMAIL_ADDRESS
+				      port: $EMAIL_PORT
+				      authentication: $EMAIL_AUTHENTICATION
+				      domain: $EMAIL_DOMAIN
+				      user_name: $EMAIL_USER_NAME
+				      password: $EMAIL_PASSWORD
 			YML
 		fi
 
