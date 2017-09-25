@@ -1,4 +1,4 @@
-FROM ruby:2.2-slim
+FROM ruby:2.4-slim
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r redmine && useradd -r -g redmine redmine
@@ -48,8 +48,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV RAILS_ENV production
 WORKDIR /usr/src/redmine
 
-ENV REDMINE_VERSION 3.1.7
-ENV REDMINE_DOWNLOAD_MD5 625b7705b70521a205491a53f6df506a
+ENV REDMINE_VERSION 3.4.2
+ENV REDMINE_DOWNLOAD_MD5 2980b80e9acc81c01c06adb86eb4f37d
 
 RUN wget -O redmine.tar.gz "https://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" \
 	&& echo "$REDMINE_DOWNLOAD_MD5 redmine.tar.gz" | md5sum -c - \

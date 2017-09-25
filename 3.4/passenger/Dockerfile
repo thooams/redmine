@@ -1,4 +1,4 @@
-FROM redmine:3.1
+FROM redmine:3.4
 
 ENV PASSENGER_VERSION 5.1.8
 
