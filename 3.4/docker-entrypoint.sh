@@ -28,13 +28,13 @@ case "$1" in
 		if [ ! -f './config/database.yml' ]; then
 			file_env 'REDMINE_DB_MYSQL'
 			file_env 'REDMINE_DB_POSTGRES'
-			
+
 			if [ "$MYSQL_PORT_3306_TCP" ] && [ -z "$REDMINE_DB_MYSQL" ]; then
 				export REDMINE_DB_MYSQL='mysql'
 			elif [ "$POSTGRES_PORT_5432_TCP" ] && [ -z "$REDMINE_DB_POSTGRES" ]; then
 				export REDMINE_DB_POSTGRES='postgres'
 			fi
-			
+
 			if [ "$REDMINE_DB_MYSQL" ]; then
 				adapter='mysql2'
 				host="$REDMINE_DB_MYSQL"
@@ -57,7 +57,7 @@ case "$1" in
 				echo >&2
 				echo >&2 '*** Using sqlite3 as fallback. ***'
 				echo >&2
-				
+
 				adapter='sqlite3'
 				host='localhost'
 				file_env 'REDMINE_DB_PORT' ''
@@ -65,11 +65,11 @@ case "$1" in
 				file_env 'REDMINE_DB_PASSWORD' ''
 				file_env 'REDMINE_DB_DATABASE' 'sqlite/redmine.db'
 				file_env 'REDMINE_DB_ENCODING' 'utf8'
-				
+
 				mkdir -p "$(dirname "$REDMINE_DB_DATABASE")"
 				chown -R redmine:redmine "$(dirname "$REDMINE_DB_DATABASE")"
 			fi
-			
+
 			REDMINE_DB_ADAPTER="$adapter"
 			REDMINE_DB_HOST="$host"
 			echo "$RAILS_ENV:" > config/database.yml
@@ -98,12 +98,27 @@ case "$1" in
 				"
 			)"
 		fi
-		
+
+    if [ ! -s './config/configuration.yml' ]; then
+      cat > './config/configuration.yml' <<-YML
+        $RAILS_ENV:
+          email_delivery:
+            delivery_method: $EMAIL_METHOD
+            smtp_settings:
+              address: $EMAIL_ADDRESS
+              port: $EMAIL_PORT
+              authentication: $EMAIL_AUTHENTICATION
+              domain: $EMAIL_DOMAIN
+              user_name: $EMAIL_USER_NAME
+              password: $EMAIL_PASSWORD
+      YML
+    fi
+
 		# ensure the right database adapter is active in the Gemfile.lock
 		cp "Gemfile.lock.${adapter}" Gemfile.lock
 		# install additional gems for Gemfile.local and plugins
 		bundle check || bundle install --without development test
-		
+
 		if [ ! -s config/secrets.yml ]; then
 			file_env 'REDMINE_SECRET_KEY_BASE'
 			if [ "$REDMINE_SECRET_KEY_BASE" ]; then
@@ -118,23 +133,23 @@ case "$1" in
 		if [ "$1" != 'rake' -a -z "$REDMINE_NO_DB_MIGRATE" ]; then
 			gosu redmine rake db:migrate
 		fi
-		
+
 		# https://www.redmine.org/projects/redmine/wiki/RedmineInstall#Step-8-File-system-permissions
 		chown -R redmine:redmine files log public/plugin_assets
 		chmod -R 755 files log tmp public/plugin_assets
-		
+
 		if [ "$1" != 'rake' -a -n "$REDMINE_PLUGINS_MIGRATE" ]; then
 			gosu redmine rake redmine:plugins:migrate
 		fi
-		
+
 		# remove PID file to enable restarting the container
 		rm -f /usr/src/redmine/tmp/pids/server.pid
-		
+
 		if [ "$1" = 'passenger' ]; then
 			# Don't fear the reaper.
 			set -- tini -- "$@"
 		fi
-		
+
 		set -- gosu redmine "$@"
 		;;
 esac
