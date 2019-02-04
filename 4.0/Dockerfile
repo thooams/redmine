@@ -1,4 +1,4 @@
-FROM ruby:2.3-slim-stretch
+FROM ruby:2.6-slim-stretch
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r redmine && useradd -r -g redmine redmine
@@ -76,8 +76,8 @@ RUN set -eux; \
 	chown redmine:redmine "$HOME"; \
 	chmod 1777 "$HOME"
 
-ENV REDMINE_VERSION 3.3.9
-ENV REDMINE_DOWNLOAD_MD5 eeb4e92681987fe1726cb962803d5cf1
+ENV REDMINE_VERSION 4.0.1
+ENV REDMINE_DOWNLOAD_MD5 a1dc18d981901e32bbeabca67984ca9b
 
 RUN wget -O redmine.tar.gz "https://www.redmine.org/releases/redmine-${REDMINE_VERSION}.tar.gz" \
 	&& echo "$REDMINE_DOWNLOAD_MD5 redmine.tar.gz" | md5sum -c - \

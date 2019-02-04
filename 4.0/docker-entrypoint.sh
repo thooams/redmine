@@ -130,6 +130,21 @@ if [ -n "$isLikelyRedmine" ]; then
 		")"
 	fi
 
+	if [ ! -s './config/configuration.yml' ]; then
+			cat > './config/configuration.yml' <<-YML
+				$RAILS_ENV:
+				  email_delivery:
+				    delivery_method: $EMAIL_METHOD
+				    smtp_settings:
+				      address: $EMAIL_ADDRESS
+				      port: $EMAIL_PORT
+				      authentication: $EMAIL_AUTHENTICATION
+				      domain: $EMAIL_DOMAIN
+				      user_name: $EMAIL_USER_NAME
+				      password: $EMAIL_PASSWORD
+			YML
+	fi
+
 	# ensure the right database adapter is active in the Gemfile.lock
 	cp "Gemfile.lock.${adapter}" Gemfile.lock
 	# install additional gems for Gemfile.local and plugins
